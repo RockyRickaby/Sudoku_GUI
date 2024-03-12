@@ -148,8 +148,8 @@ public class SudokuLogic {
     }
 
     private boolean validIndex(int i, int j) {
-        return i >= 0 && i < ROWS_COLS 
-            && j >= 0 && j < ROWS_COLS;
+        return i >= 0 && i < SMALL_ROWS_COLS
+            && j >= 0 && j < SMALL_ROWS_COLS;
     }
 
     private boolean putAnswerOrNote(int val, int i, int j) {
