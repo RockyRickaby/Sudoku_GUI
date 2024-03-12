@@ -25,11 +25,17 @@ public class SudokuLogic {
     }
 
     public boolean hasDefinitiveAnswerIn(int i, int j) {
+        if (i < 0 || i >= ROWS_COLS || j < 0 || j >= ROWS_COLS) {
+            return false;
+        }
         return definitiveAnswersGrid[i][j];
     }
 
     // i and j may go all the way up to 26
     public int getValueIn(int i, int j) {
+        if (i < 0 || i >= ROWS_COLS || j < 0 || j >= ROWS_COLS) {
+            return -1;
+        }
         return gameGrid[i][j];
     }
 
