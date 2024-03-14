@@ -44,14 +44,11 @@ public class SudokuGUI extends JFrame {
 
     private final Rectangle2D.Double[][] GRID_CELLS = new Rectangle2D.Double[9][9];
     private final Line2D.Double[] GRID_LINES = new Line2D.Double[4];
-    private final boolean[][] WRONG_DIGITS = new boolean[9][9];
+    // private final boolean[][] WRONG_DIGITS = new boolean[9][9];
 
     private final Rectangle2D.Double CURSOR = new Rectangle2D.Double();
     private final BasicStroke CELLS_STROKE = new BasicStroke(.125F),
                                      GRID_STROKE = new BasicStroke(3);
-
-
-    // private static final Color DARKER_MAGENTA = Color.MAGENTA.darker();
 
     private HashMap<String, BufferedImage> gridImages, smallerImages;
     private List<Path> imagePaths;
