@@ -7,13 +7,21 @@ public class SudokuLogic {
     private int[][] gameGrid;
     private int[][] smallAnswersGrid;
     private boolean[][] definitiveAnswersGrid;
-    private boolean playerIsTakingNotes;
+    private boolean playerIsTakingNotes, disabled;
 
     public SudokuLogic() {
-        playerIsTakingNotes = false;
+        playerIsTakingNotes = disabled = false;
         smallAnswersGrid = new int[SMALL_ROWS_COLS][SMALL_ROWS_COLS];
         gameGrid = new int[ROWS_COLS][ROWS_COLS];
         definitiveAnswersGrid = new boolean[ROWS_COLS][ROWS_COLS];
+    }
+
+    public boolean disable() {
+        return disabled = true;
+    }
+
+    public boolean isDisabled() {
+        return disabled;
     }
 
     public boolean toggleNoteTaking() { 
@@ -40,6 +48,9 @@ public class SudokuLogic {
     }
 
     public boolean put(int val, int i, int j) {
+        if (disabled) {
+            return false;
+        }
         if (!validIndex(i, j) || val < 1 || val > 9) {
             return false;
         }
@@ -50,6 +61,9 @@ public class SudokuLogic {
     }
 
     public boolean delete(int i, int j) {
+        if (disabled) {
+            return false;
+        }
         if (!validIndex(i, j) || playerIsTakingNotes) {
             return false;
         }
@@ -58,6 +72,9 @@ public class SudokuLogic {
     }
 
     public boolean deleteNote(int val, int i, int j) {
+        if (disabled) {
+            return false;
+        }
         if (!validIndex(i, j) || !playerIsTakingNotes || val < 1 || val > 9) {
             return false;
         }
