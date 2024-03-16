@@ -9,8 +9,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -24,8 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
@@ -49,9 +45,7 @@ public class SudokuGUI extends JFrame {
     private final BasicStroke CELLS_STROKE = new BasicStroke(.125F),
                                      GRID_STROKE = new BasicStroke(3);
 
-    private HashMap<String, BufferedImage> gridImages, smallerImages;
     private HashMap<String, BufferedImage> imageMap;
-    private List<Path> imagePaths;
 
     private double gridScaleX, gridScaleY;
     private double subscaleX, subscaleY;
@@ -61,10 +55,10 @@ public class SudokuGUI extends JFrame {
     private int cursorColorIdx;
     private int numberToInsert;
     private int insertX, insertY;
-    private boolean loadingImagesFirstTime;
 
     public SudokuGUI() {
-        loadingImagesFirstTime = true;
+        imageMap = new HashMap<>();
+        loadImages();
 
         cursorX = cursorY = -1;
         subscaleX = subscaleY = cursorX = cursorY = -1;
@@ -85,10 +79,6 @@ public class SudokuGUI extends JFrame {
 
         sudoku = SudokuGenerator.generateSudoku();
         numberToInsert = -1;
-        imagePaths = null;
-        imageMap = new HashMap<>();
-        gridImages = new HashMap<>();
-        smallerImages = new HashMap<>();
 
         setBackground(Color.BLACK);
         setTitle("Sudoku");
@@ -99,52 +89,6 @@ public class SudokuGUI extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
         System.out.println(getContentPane().getSize());
-    }
-
-    private void loadImages() {
-        try (Stream<Path> imagesStream = Files.walk(Path.of("src/game/images"))) {
-            imagePaths = imagesStream.skip(1).collect(Collectors.toList());
-            reloadImages();
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void reloadImages() {
-        gridImages.clear();
-        smallerImages.clear();
-        imagePaths.forEach(this::loadImage);
-    }
-
-    private void loadImage(Path p) {
-        String filePath = p.subpath(p.getNameCount() - 1, p.getNameCount()).toString();
-        filePath = filePath.substring(0, filePath.lastIndexOf("."));
-        try {
-            BufferedImage loadedImage = null;
-            if (!imageMap.containsKey(filePath)) { // to reduce IO operations
-                loadedImage = ImageIO.read(p.toFile());
-                imageMap.put(filePath, loadedImage);
-            }
-            loadedImage = imageMap.get(filePath);
-            
-            BufferedImage resizedImage = new BufferedImage((int) gridScaleX, (int) gridScaleY, loadedImage.getType());
-            Graphics2D resizer = resizedImage.createGraphics();
-            resizer.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            resizer.drawImage(loadedImage, 0, 0, (int) gridScaleX, (int) gridScaleY, null);
-            resizer.dispose();
-
-            gridImages.put(filePath, resizedImage);
-
-            resizedImage = new BufferedImage((int) subscaleX, (int) subscaleY, loadedImage.getType());
-            resizer = resizedImage.createGraphics();
-            resizer.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            resizer.drawImage(loadedImage, 0, 0, (int) subscaleX, (int) subscaleY, null);
-            resizer.dispose();
-
-            smallerImages.put(filePath, resizedImage);
-        } catch(IOException e) {
-            e.printStackTrace();
-        } 
     }
 
     private JMenuBar menuBar() {
@@ -242,7 +186,6 @@ public class SudokuGUI extends JFrame {
             @Override
             public void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g;
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
                 double width = getWidth();
                 double height = getHeight();
@@ -252,13 +195,14 @@ public class SudokuGUI extends JFrame {
                 subscaleX = width / 27;
                 subscaleY = height / 27;
                 
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
                 for (int i = 0; i < 9; i++) {
                     for (int j = 0; j < 9; j++) {
                         int val = sudoku.getValueIn(i * 3, j * 3);
                         if (!sudoku.hasDefinitiveAnswerIn(i * 3, j * 3)) {
                             continue;
                         }
-                        g2.drawImage(gridImages.get(NUMBERS[val - 1]), null, (int) (j * gridScaleX), (int) (i * gridScaleY));
+                        g2.drawImage(imageMap.get(NUMBERS[val - 1]), (int) (j * gridScaleX), (int) (i * gridScaleY), (int) gridScaleX, (int) gridScaleY, null);
                     }
                 }
 
@@ -268,9 +212,11 @@ public class SudokuGUI extends JFrame {
                         if (sudoku.hasDefinitiveAnswerIn(i, j) || val == 0) {
                             continue;
                         }
-                        g2.drawImage(smallerImages.get(NUMBERS[val - 1]), null, (int) (j * subscaleX), (int) (i * subscaleY));
+                        g2.drawImage(imageMap.get(NUMBERS[val - 1]), (int) (j * subscaleX), (int) (i * subscaleY), (int) subscaleX, (int) subscaleY, null);
                     }
                 }
+
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
                 g2.setColor(Color.WHITE);
                 g2.setStroke(CELLS_STROKE);
@@ -335,18 +281,27 @@ public class SudokuGUI extends JFrame {
                 panel.grabFocus();
             }
         });
-        panel.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                if (loadingImagesFirstTime) {
-                    loadImages();
-                    loadingImagesFirstTime = false;
-                }
-                reloadImages();
-                panel.grabFocus();
-            }
-        });
         panel.setPreferredSize(new Dimension(9 * (int) gridScaleX, 9 * (int) gridScaleY));
         return panel;
+    }
+
+    // used only once per instance
+    private void loadImages() {
+        try (Stream<Path> imagesStream = Files.walk(Path.of("src/game/images"))) {
+            imagesStream.skip(1).forEach(this::loadImage);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadImage(Path p) {
+        String filePath = p.subpath(p.getNameCount() - 1, p.getNameCount()).toString();
+        filePath = filePath.substring(0, filePath.lastIndexOf("."));
+        try {
+            BufferedImage loadedImage = ImageIO.read(p.toFile());
+            imageMap.put(filePath, loadedImage);
+        } catch(IOException e) {
+            e.printStackTrace();
+        } 
     }
 }
