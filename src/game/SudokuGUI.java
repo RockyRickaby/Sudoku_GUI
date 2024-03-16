@@ -36,21 +36,22 @@ import javax.swing.JPanel;
 public class SudokuGUI extends JFrame {
     private static final String[] NUMBERS = {"1", "2", "3", "4", "5", "6", "7", "8", "9"};
     private static final Color CURSOR_COLORS[] = {Color.PINK, Color.GREEN.darker()};
+    private static final BasicStroke CELLS_STROKE = new BasicStroke(.125F),
+                                     GRID_STROKE = new BasicStroke(3);
 
-    private final Rectangle2D.Double[][] GRID_CELLS = new Rectangle2D.Double[9][9];
-    private final Line2D.Double[] GRID_LINES = new Line2D.Double[4];
+
+    private final Rectangle2D.Double GRID_CELL = new Rectangle2D.Double();
+    private final Line2D.Double GRID_LINE = new Line2D.Double();
     // private final boolean[][] WRONG_DIGITS = new boolean[9][9];
 
     private final Rectangle2D.Double CURSOR = new Rectangle2D.Double();
-    private final BasicStroke CELLS_STROKE = new BasicStroke(.125F),
-                                     GRID_STROKE = new BasicStroke(3);
-
+    
     private HashMap<String, BufferedImage> imageMap;
 
     private double gridScaleX, gridScaleY;
     private double subscaleX, subscaleY;
     private double cursorX, cursorY;
-
+    
     private SudokuLogic sudoku;
     private int cursorColorIdx;
     private int numberToInsert;
@@ -65,17 +66,6 @@ public class SudokuGUI extends JFrame {
         gridScaleX = gridScaleY = 54;
         insertX = insertY = -1;
         cursorColorIdx = 0;
-
-        GRID_LINES[0] = new Line2D.Double();
-        GRID_LINES[1] = new Line2D.Double();
-        GRID_LINES[2] = new Line2D.Double();
-        GRID_LINES[3] = new Line2D.Double();
-
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                GRID_CELLS[i][j] = new Rectangle2D.Double();
-            }
-        }
 
         sudoku = SudokuGenerator.generateSudoku();
         numberToInsert = -1;
@@ -223,28 +213,30 @@ public class SudokuGUI extends JFrame {
 
                 for (int i = 0; i < 9; i++) {
                     for (int j = 0; j < 9; j++) {
-                        GRID_CELLS[i][j].setRect(i * gridScaleX, j * gridScaleY, gridScaleX, gridScaleY);
-                        g2.draw(GRID_CELLS[i][j]);
+                        GRID_CELL.setRect(i * gridScaleX, j * gridScaleY, gridScaleX, gridScaleY);
+                        g2.draw(GRID_CELL);
                     }
                 }
 
-                g2.setColor(Color.GRAY);
                 g2.setStroke(GRID_STROKE);
+                g2.setColor(Color.GRAY);
 
-                GRID_LINES[0].setLine(gridScaleX * 3, 0, gridScaleX * 3, gridScaleY * 9);
-                GRID_LINES[1].setLine(gridScaleX * 6, 0, gridScaleX * 6, gridScaleY * 9);
-                GRID_LINES[2].setLine(0, gridScaleY * 3, gridScaleX * 9, gridScaleY * 3);
-                GRID_LINES[3].setLine(0, gridScaleY * 6, gridScaleX * 9, gridScaleY * 6);
+                GRID_LINE.setLine(gridScaleX * 3, 0, gridScaleX * 3, gridScaleY * 9);
+                g2.draw(GRID_LINE);
 
-                g2.draw(GRID_LINES[0]);
-                g2.draw(GRID_LINES[1]);
-                g2.draw(GRID_LINES[2]);
-                g2.draw(GRID_LINES[3]);
+                GRID_LINE.setLine(gridScaleX * 6, 0, gridScaleX * 6, gridScaleY * 9);               
+                g2.draw(GRID_LINE);
 
-                g2.setColor(CURSOR_COLORS[cursorColorIdx]);
+                GRID_LINE.setLine(0, gridScaleY * 3, gridScaleX * 9, gridScaleY * 3);               
+                g2.draw(GRID_LINE);
+
+                GRID_LINE.setLine(0, gridScaleY * 6, gridScaleX * 9, gridScaleY * 6);               
+                g2.draw(GRID_LINE);
+
                 cursorX = insertX * gridScaleX;
                 cursorY = insertY * gridScaleY;
-
+                
+                g2.setColor(CURSOR_COLORS[cursorColorIdx]);
                 CURSOR.setFrame(cursorX, cursorY, gridScaleX, gridScaleY);
                 g2.draw(CURSOR);
             }
