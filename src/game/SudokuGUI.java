@@ -50,8 +50,8 @@ public class SudokuGUI extends JFrame {
                                      GRID_STROKE = new BasicStroke(3);
 
     private HashMap<String, BufferedImage> gridImages, smallerImages;
-    private List<Path> imagePaths;
     private HashMap<String, BufferedImage> imageMap;
+    private List<Path> imagePaths;
 
     private double gridScaleX, gridScaleY;
     private double subscaleX, subscaleY;
@@ -67,9 +67,9 @@ public class SudokuGUI extends JFrame {
         loadingImagesFirstTime = true;
 
         cursorX = cursorY = -1;
-        subscaleX = subscaleY = cursorX = cursorY = 0;
+        subscaleX = subscaleY = cursorX = cursorY = -1;
         gridScaleX = gridScaleY = 54;
-        insertX = insertY = 0;
+        insertX = insertY = -1;
         cursorColorIdx = 0;
 
         GRID_LINES[0] = new Line2D.Double();
@@ -309,6 +309,9 @@ public class SudokuGUI extends JFrame {
             public void mousePressed(MouseEvent e) {
                 insertX = (e.getX() / (int) gridScaleX);
                 insertY = (e.getY() / (int) gridScaleY);
+
+                insertX = insertX >= 9 ? 8 : insertX;
+                insertY = insertY >= 9 ? 8 : insertY; 
 
                 repaint();
                 panel.grabFocus();
