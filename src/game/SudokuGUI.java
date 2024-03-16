@@ -129,6 +129,7 @@ public class SudokuGUI extends JFrame {
             
             BufferedImage resizedImage = new BufferedImage((int) gridScaleX, (int) gridScaleY, loadedImage.getType());
             Graphics2D resizer = resizedImage.createGraphics();
+            resizer.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             resizer.drawImage(loadedImage, 0, 0, (int) gridScaleX, (int) gridScaleY, null);
             resizer.dispose();
 
@@ -136,6 +137,7 @@ public class SudokuGUI extends JFrame {
 
             resizedImage = new BufferedImage((int) subscaleX, (int) subscaleY, loadedImage.getType());
             resizer = resizedImage.createGraphics();
+            resizer.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             resizer.drawImage(loadedImage, 0, 0, (int) subscaleX, (int) subscaleY, null);
             resizer.dispose();
 
@@ -205,11 +207,8 @@ public class SudokuGUI extends JFrame {
         }
         button = new JButton("Take Note");
         button.addActionListener(e -> {
-            if (sudoku.toggleNoteTaking()) {
-                cursorColorIdx = 1;
-            } else {
-                cursorColorIdx = 0;
-            }
+            sudoku.toggleNoteTaking();
+            cursorColorIdx = (cursorColorIdx + 1) % 2;
             repaint();
         });
         panel.add(button);
@@ -321,27 +320,17 @@ public class SudokuGUI extends JFrame {
             @Override
             public void keyPressed(KeyEvent e) {
                 int keycode = e.getKeyCode();
-                switch(keycode) {
-                    case KeyEvent.VK_1: numberToInsert = 1; break;
-                    case KeyEvent.VK_2: numberToInsert = 2; break;
-                    case KeyEvent.VK_3: numberToInsert = 3; break;
-                    case KeyEvent.VK_4: numberToInsert = 4; break;
-                    case KeyEvent.VK_5: numberToInsert = 5; break;
-                    case KeyEvent.VK_6: numberToInsert = 6; break;
-                    case KeyEvent.VK_7: numberToInsert = 7; break;
-                    case KeyEvent.VK_8: numberToInsert = 8; break;
-                    case KeyEvent.VK_9: numberToInsert = 9; break;
-                    default: e.consume();
-                }
-                if (keycode == KeyEvent.VK_DELETE) {
+                if (keycode >= KeyEvent.VK_1 && keycode <= KeyEvent.VK_9) {
+                    numberToInsert = keycode - KeyEvent.VK_1 + 1;
+                    sudoku.put(numberToInsert, insertY, insertX);
+                } else if (keycode == KeyEvent.VK_DELETE) {
                     if (sudoku.isTakingNotes()) {
                         sudoku.deleteNote(numberToInsert, insertY, insertX);
                     } else {
                         sudoku.delete(insertY, insertX);
                     }
-                } else {
-                    sudoku.put(numberToInsert, insertY, insertX);
                 }
+                e.consume();
                 repaint();
                 panel.grabFocus();
             }
