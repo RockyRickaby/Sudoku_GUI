@@ -59,7 +59,7 @@ public class SudokuGenerator {
     private static void clearNCells(int[][] grid) {
         Random r = new Random();
         int i, j;
-        int n = r.nextInt(60 - 24) + 24;
+        int n = r.nextInt(60 - 32) + 32;
         for (int k = 0; k < n; k++) {
             do {
                 i = r.nextInt(9);
