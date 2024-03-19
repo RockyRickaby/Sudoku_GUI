@@ -18,6 +18,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -279,21 +281,24 @@ public class SudokuGUI extends JFrame {
 
     // used only once per instance
     private void loadImages() {
-        try (Stream<Path> imagesStream = Files.walk(Path.of("src/game/images"))) {
-            imagesStream.skip(1).forEach(this::loadImage);
-        } catch(IOException e) {
-            e.printStackTrace();
+        for (String num : NUMBERS) {
+            URL url = SudokuGUI.class.getResource(String.format("images/%s.png", num));
+            if (url == null) {
+                JOptionPane.showMessageDialog(null, String.format("Loading of image %s.png has failed", num), "Image loading has failed", JOptionPane.ERROR_MESSAGE);
+                System.exit(1);
+            }
+            loadImage(url, num);
         }
     }
 
-    private void loadImage(Path p) {
-        String filePath = p.subpath(p.getNameCount() - 1, p.getNameCount()).toString();
-        filePath = filePath.substring(0, filePath.lastIndexOf("."));
+    private void loadImage(URL url, String key) {
         try {
-            BufferedImage loadedImage = ImageIO.read(p.toFile());
-            imageMap.put(filePath, loadedImage);
+            BufferedImage loadedImage = ImageIO.read(url);
+            imageMap.put(key, loadedImage);
         } catch(IOException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, String.format("Loading of image %s.png has failed", key), "Image loading has failed", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
         } 
     }
 }
