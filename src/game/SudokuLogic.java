@@ -165,7 +165,9 @@ public class SudokuLogic {
                 }
                 check[smallAnswersGrid[auxi][auxj] - 1] = true;
             }
-            check = new boolean[9];
+            for (int k = 0; k < 9; k++) {
+                check[k] = false;
+            }
         }
         return false;
     }
