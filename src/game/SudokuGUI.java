@@ -18,13 +18,9 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import java.util.HashMap;
-import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
