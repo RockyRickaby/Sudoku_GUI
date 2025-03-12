@@ -14,3 +14,7 @@ Alternatively, if the second command doesn't work, try this:
 ```console
 java -cp ./target/SudokuGUI-<current version>.jar com.mauro.sudoku.App
 ```
+
+Double clicking the JAR file should also work.
+
+The current version can be found within the `<version>` tag in the POM file.
