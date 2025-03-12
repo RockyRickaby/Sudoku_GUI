@@ -1,5 +1,9 @@
 Sudoku game made in Java :D
 
+![Screenshot showing how the game looks](/looks.png)
+
+You may use the number keys on your keyboard to fill in the cells.
+
 ## Building and running
 
 Run these on the command line:
