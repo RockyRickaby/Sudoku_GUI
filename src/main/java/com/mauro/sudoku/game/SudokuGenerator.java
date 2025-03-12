@@ -1,4 +1,4 @@
-package game;
+package com.mauro.sudoku.game;
 
 import java.util.Random;
 

@@ -1,4 +1,4 @@
-package game;
+package com.mauro.sudoku.game;
 
 public class SudokuLogic {
     private static final int ROWS_COLS = 27;

@@ -1,4 +1,4 @@
-package game;
+package com.mauro.sudoku.game;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -132,7 +132,19 @@ public class SudokuGUI extends JFrame {
             int insert = i + 1;
             button.addActionListener(e -> {
                 numberToInsert = insert;
-                sudoku.put(insert, insertY, insertX);
+                if (sudoku.isTakingNotes()) {
+                    int newY = (insertY * 3) + (numberToInsert - 1) / 3,
+                        newX = (insertX * 3) + (numberToInsert - 1) % 3;
+                    if (sudoku.getValueIn(newY, newX) == numberToInsert) {
+                        sudoku.deleteNote(numberToInsert, insertY, insertX);
+                    } else {
+                        sudoku.put(insert, insertY, insertX);
+                    }
+                } else if (sudoku.hasDefinitiveAnswerIn(insertY * 3, insertX * 3) && sudoku.getValueIn(insertY * 3, insertX * 3) == numberToInsert) {
+                    sudoku.delete(insertY, insertX);                    
+                } else {
+                    sudoku.put(insert, insertY, insertX);
+                }
                 repaint();
             });
             panel.add(button);
@@ -258,13 +270,22 @@ public class SudokuGUI extends JFrame {
                 int keycode = e.getKeyCode();
                 if (keycode >= KeyEvent.VK_1 && keycode <= KeyEvent.VK_9) {
                     numberToInsert = keycode - KeyEvent.VK_1 + 1;
-                    sudoku.put(numberToInsert, insertY, insertX);
-                } else if (keycode == KeyEvent.VK_DELETE) {
                     if (sudoku.isTakingNotes()) {
-                        sudoku.deleteNote(numberToInsert, insertY, insertX);
+                        int newY = (insertY * 3) + (numberToInsert - 1) / 3,
+                            newX = (insertX * 3) + (numberToInsert - 1) % 3;
+                        if (sudoku.getValueIn(newY, newX) == numberToInsert) {
+                            sudoku.deleteNote(numberToInsert, insertY, insertX);
+                        } else {
+                            sudoku.put(numberToInsert, insertY, insertX);
+                        }
+                    } else if (sudoku.hasDefinitiveAnswerIn(insertY * 3, insertX * 3) && sudoku.getValueIn(insertY * 3, insertX * 3) == numberToInsert) {
+                            sudoku.delete(insertY, insertX);                    
                     } else {
-                        sudoku.delete(insertY, insertX);
+                        sudoku.put(numberToInsert, insertY, insertX);
                     }
+                } else if (keycode == KeyEvent.VK_DELETE) {
+                    System.out.println("del");
+                    sudoku.delete(insertY, insertX);
                 }
                 e.consume();
                 repaint();
